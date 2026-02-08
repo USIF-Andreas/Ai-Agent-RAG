@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG AI Agent</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Spline+Sans:wght@400;500;600&display=swap');
+
+        :root {
+            --bg-1: #0b0f2b;
+            --bg-2: #1a0f3d;
+            --card: #f6f7fb;
+            --ink: #0f172a;
+            --muted: #475569;
+            --accent: #22d3ee;
+            --accent-2: #f97316;
+            --accent-3: #a855f7;
+            --ring: rgba(34, 211, 238, 0.45);
+            --glow: 0 0 30px rgba(168, 85, 247, 0.35), 0 0 60px rgba(34, 211, 238, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Spline Sans", sans-serif;
+            color: var(--ink);
+            background: radial-gradient(1100px 620px at 8% 12%, rgba(168, 85, 247, 0.22), transparent 60%),
+                        radial-gradient(900px 520px at 90% 12%, rgba(34, 211, 238, 0.25), transparent 55%),
+                        radial-gradient(700px 520px at 80% 80%, rgba(249, 115, 22, 0.18), transparent 55%),
+                        linear-gradient(140deg, var(--bg-1), var(--bg-2));
+            display: grid;
+            place-items: center;
+            padding: 32px;
+            overflow-x: hidden;
+        }
+
+        .bg-orb {
+            position: fixed;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            filter: blur(6px);
+            opacity: 0.55;
+            z-index: 0;
+            animation: drift 14s ease-in-out infinite, glowPulse 6s ease-in-out infinite;
+        }
+
+        .bg-orb.one {
+            top: 8%;
+            left: 6%;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.95), rgba(168, 85, 247, 0.08));
+        }
+
+        .bg-orb.two {
+            bottom: 6%;
+            right: 8%;
+            width: 320px;
+            height: 320px;
+            animation-delay: -4s;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.95), rgba(34, 211, 238, 0.08));
+        }
+
+        .hero {
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 28px;
+            align-items: stretch;
+            animation: fadeUp 700ms ease-out;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            padding: 40px;
+            border-radius: 28px;
+            background: linear-gradient(160deg, rgba(15, 23, 42, 0.65), rgba(17, 24, 39, 0.75));
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e2e8f0;
+            box-shadow: var(--glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content::after {
+            content: "";
+            position: absolute;
+            inset: -40% -20% auto auto;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.45), transparent 70%);
+            filter: blur(10px);
+        }
+
+        .hero-kicker {
+            font-size: 12px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(226, 232, 240, 0.7);
+        }
+
+        .hero-title {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 44px;
+            line-height: 1.05;
+            margin: 16px 0 16px;
+        }
+
+        .hero-desc {
+            font-size: 16px;
+            color: rgba(226, 232, 240, 0.78);
+            max-width: 420px;
+        }
+
+        .hero-actions {
+            margin-top: 26px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 18px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-3), var(--accent-2));
+            color: #0b0f2b;
+            box-shadow: 0 12px 28px rgba(34, 211, 238, 0.3), 0 0 18px rgba(168, 85, 247, 0.35);
+        }
+
+        .btn.ghost {
+            background: rgba(255, 255, 255, 0.08);
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .hero-card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.25), 0 0 40px rgba(34, 211, 238, 0.15);
+            border: 1px solid rgba(34, 211, 238, 0.25);
+        }
+
+        .hero-card h3 {
+            font-family: "Space Grotesk", sans-serif;
+            margin: 0 0 10px;
+            font-size: 20px;
+        }
+
+        .hero-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            color: var(--muted);
+            display: grid;
+            gap: 10px;
+        }
+
+        .hero-card li {
+            padding: 10px 12px;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes drift {
+            0%, 100% {
+                transform: translate3d(0, 0, 0);
+            }
+            50% {
+                transform: translate3d(18px, -12px, 0);
+            }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% {
+                opacity: 0.5;
+                filter: blur(6px);
+            }
+            50% {
+                opacity: 0.75;
+                filter: blur(10px);
+            }
+        }
+
+        @media (max-width: 980px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-orb one" aria-hidden="true"></div>
+    <div class="bg-orb two" aria-hidden="true"></div>
+    <main class="hero">
+        <section class="hero-content">
+            <div class="hero-kicker">RAG AI Agent</div>
+            <h1 class="hero-title">Chat with your documents, instantly.</h1>
+            <p class="hero-desc">Load PDFs and text files, then query them with a local LLM. Fast answers, private workflow.</p>
+            <div class="hero-actions">
+                <a class="btn primary" href="{{ url_for('chat') }}">Open Chat</a>
+                <a class="btn ghost" href="{{ url_for('register') }}">Create Account</a>
+            </div>
+        </section>
+
+        <aside class="hero-card">
+            <h3>What you can do</h3>
+            <ul>
+                <li>Ask questions across PDFs and notes.</li>
+                <li>Keep data private on your machine.</li>
+                <li>Reuse cached embeddings for speed.</li>
+                <li>Switch models without changing the UI.</li>
+            </ul>
+        </aside>
+    </main>
+</body>
+</html>
