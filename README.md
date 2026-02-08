@@ -72,3 +72,4 @@ documents/faiss_index_*
 
 ---
 Built for local, private document QA.
+![App Screenshot](Ai-Agent-RAG/Screenshot 2026-02-08 112042.png)
