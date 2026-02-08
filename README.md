@@ -72,4 +72,5 @@ documents/faiss_index_*
 
 ---
 Built for local, private document QA.
-![App Screenshot](Ai-Agent-RAG/Screenshot 2026-02-08 112042.png)
+![App Screenshot](https://raw.githubusercontent.com/USIF-Andreas/Ai-Agent-RAG/main/Ai-Agent-RAG/Screenshot%202026-02-08%20112042.png)
+
