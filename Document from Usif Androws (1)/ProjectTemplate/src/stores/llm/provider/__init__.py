@@ -106,10 +106,85 @@ class OllamaLLMProvider(LLMProvider):
         return str(body.get("response", "")).strip()
 
 
-def create_llm_provider(settings: Settings) -> LLMProvider:
-    if settings.llm_provider.lower() == "ollama":
+def create_llm_provider(settings: Settings, provider: str | None = None) -> LLMProvider:
+    """Create LLM provider, optionally overriding the default provider from settings"""
+    provider = (provider or settings.llm_provider).lower()
+    if provider == "ollama":
         return OllamaLLMProvider(
             base_url=settings.ollama_base_url,
             model_name=settings.llm_model,
         )
-    return RetrievalSummaryLLMProvider()# TIP: Initialize package exports here.
+    elif provider == "openrouter":
+        return OpenRouterLLMProvider(
+            api_key=settings.openrouter_api_key,
+            model_name=settings.openrouter_model,
+        )
+    return RetrievalSummaryLLMProvider()
+
+
+class OpenRouterLLMProvider(LLMProvider):
+    provider_name = "openrouter"
+
+    def __init__(self, api_key: str, model_name: str = "openrouter/owl-alpha", timeout_seconds: int = 90) -> None:
+        self.api_key = api_key
+        self.model_name = model_name
+        self.timeout_seconds = timeout_seconds
+
+    async def generate_answer(
+        self,
+        query: str,
+        hits: Sequence[SearchHit],
+        settings: Settings,
+    ) -> str:
+        context = "\n\n".join(
+            f"[{hit.rank}] {hit.source}: {hit.excerpt}" for hit in hits[: settings.max_context_chunks]
+        )
+        if not context:
+            return (
+                f"No strong match was found for '{query}'. "
+                "Add more raw CVs or job descriptions and call /api/ingest to refresh the index."
+            )
+
+        prompt = (
+            "You are a retrieval-augmented assistant for candidate-job matching. "
+            "Answer only from the provided context. If the context is insufficient, say so clearly.\n\n"
+            f"Question: {query}\n\n"
+            f"Context:\n{context}\n\nAnswer:"
+        )
+
+        try:
+            return await asyncio.to_thread(self._generate_sync, prompt)
+        except Exception as e:
+            print(f"OpenRouter error: {e}")
+            return await RetrievalSummaryLLMProvider().generate_answer(query, hits, settings)
+
+    def _generate_sync(self, prompt: str) -> str:
+        if not self.api_key:
+            raise ValueError("OpenRouter API key is not configured. Set OPENROUTER_API_KEY in .env")
+
+        payload = json.dumps({
+            "model": self.model_name,
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": 500,
+            "temperature": 0.2,
+        }).encode("utf-8")
+
+        request = urllib.request.Request(
+            "https://openrouter.ai/api/v1/chat/completions",
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}",
+                "HTTP-Referer": "http://localhost:8000",
+                "X-Title": "RAG CV Matcher",
+            },
+            method="POST",
+        )
+
+        with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+            body = json.loads(response.read().decode("utf-8"))
+
+        choices = body.get("choices", [])
+        if choices:
+            return str(choices[0].get("message", {}).get("content", "")).strip()
+        return ""

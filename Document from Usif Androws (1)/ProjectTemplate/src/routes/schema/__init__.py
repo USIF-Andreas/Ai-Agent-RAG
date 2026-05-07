@@ -21,6 +21,7 @@ class QueryRequest(BaseModel):
     top_k: int | None = Field(default=None, ge=1, le=20)
     include_context: bool = True
     source_filter: list[str] = Field(default_factory=list)
+    provider: str | None = Field(default=None, description="LLM provider to use: ollama or openrouter")
 
 
 class QueryResponse(BaseModel):

@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     sqlite_db_path: Path = Field(default_factory=lambda: BASE_DIR / "documents" / "metadata.db")
 
     ollama_base_url: str = "http://ollama:11434"
+    openrouter_api_key: str = ""
+    openrouter_model: str = "openrouter/owl-alpha"
     llm_model: str = "llama3:8b"
     embedding_model: str = "nomic-embed-text"
     llm_provider: str = "ollama"

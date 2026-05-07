@@ -348,7 +348,19 @@
         <section class="chat-card">
             <div class="chat-header">
                 <h1>Chat Workspace</h1>
-                <span class="status-pill">Ready</span>
+                <button id="providerBtn" onclick="toggleProvider()" style="
+                    background: linear-gradient(135deg, #f97316, #a855f7);
+                    color: #0b0f2b;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 12px;
+                    margin-left: 10px;
+                    transition: transform 0.2s ease;
+                ">Switch to Open Router ULTIMATE</button>
+                <span class="status-pill" id="statusPill">Ollama</span>
             </div>
 
             <div class="chat-messages" id="chatMessages">
@@ -373,6 +385,9 @@
         const chatMessages = document.getElementById('chatMessages');
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
+        const providerBtn = document.getElementById('providerBtn');
+        const statusPill = document.getElementById('statusPill');
+        let currentProvider = 'ollama'; // Default provider
         
         function addMessage(content, isUser = false, isError = false) {
             const messageDiv = document.createElement('div');
@@ -384,7 +399,7 @@
             if (!isUser) {
                 const label = document.createElement('div');
                 label.className = 'message-label';
-                label.textContent = 'AI Agent';
+                label.textContent = 'AI Agent (' + currentProvider.toUpperCase() + ')';
                 messageDiv.appendChild(label);
             }
             
@@ -392,6 +407,25 @@
             messageDiv.appendChild(contentDiv);
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function toggleProvider() {
+            if (currentProvider === 'ollama') {
+                currentProvider = 'openrouter';
+                providerBtn.textContent = 'Switch to Ollama';
+                providerBtn.style.background = 'linear-gradient(135deg, #22d3ee, #a855f7)';
+                statusPill.textContent = 'Open Router ULTIMATE';
+                statusPill.style.background = 'rgba(249, 115, 22, 0.3)';
+                statusPill.style.color = '#ea580c';
+            } else {
+                currentProvider = 'ollama';
+                providerBtn.textContent = 'Switch to Open Router ULTIMATE';
+                providerBtn.style.background = 'linear-gradient(135deg, #f97316, #a855f7)';
+                statusPill.textContent = 'Ollama';
+                statusPill.style.background = 'rgba(34, 211, 238, 0.3)';
+                statusPill.style.color = '#0f172a';
+            }
+            console.log('Switched to provider:', currentProvider);
         }
         
         function sendMessage() {
@@ -403,14 +437,17 @@
             sendBtn.disabled = true;
             
             // Show loading indicator
-            addMessage('Thinking' + '…');
+            addMessage('Thinking with ' + currentProvider.toUpperCase() + '…');
             
             fetch('/api/query', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ query: message }),
+                body: JSON.stringify({ 
+                    query: message,
+                    provider: currentProvider 
+                }),
                 signal: AbortSignal.timeout(200000)  // 200 second timeout
             })
             .then(async response => {

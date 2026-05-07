@@ -103,7 +103,12 @@ class RAGController:
 
         top_k = payload.top_k or self.settings.top_k
         ranked_hits = await self._vector_store.search(payload.query, top_k, payload.source_filter)
-        answer = await self._llm.generate_answer(payload.query, ranked_hits, self.settings)
+        
+        # Use provider from request if specified, otherwise use default
+        provider = payload.provider or self.settings.llm_provider
+        llm = create_llm_provider(self.settings, provider)
+        
+        answer = await llm.generate_answer(payload.query, ranked_hits, self.settings)
 
         query_log = QueryLogRecord(
             query_id=self._make_run_id("query"),
@@ -112,7 +117,7 @@ class RAGController:
             retrieved_count=len(ranked_hits),
             created_at=self._now(),
             latency_ms=int((time.perf_counter() - start) * 1000),
-            metadata={"generation_mode": "retrieval-baseline"},
+            metadata={"generation_mode": "retrieval-baseline", "provider": provider},
         )
         self._query_logs.append(query_log)
         await self._metadata_store.record_query(query_log)
@@ -120,8 +125,8 @@ class RAGController:
         return QueryResponse(
             query=payload.query,
             answer=answer,
-            generation_mode=self._llm.provider_name,
-            model=self.settings.llm_model,
+            generation_mode=llm.provider_name,
+            model=self.settings.openrouter_model if provider.lower() == "openrouter" else self.settings.llm_model,
             retrieved_count=len(ranked_hits),
             retrieved_chunks=[
                 ChunkReference(
