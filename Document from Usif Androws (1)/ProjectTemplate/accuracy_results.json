@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-05-07 23:20:24",
+  "total_tests": 8,
+  "results": [
+    {
+      "query": "What is the name of the best football player?",
+      "provider": "ollama",
+      "description": "Ollama: Basic entity extraction",
+      "success": true,
+      "latency_ms": 15580.470880000576,
+      "response": "The name of the best football player is Aiden Kareem.",
+      "error": ""
+    },
+    {
+      "query": "What is the name of the best football player?",
+      "provider": "openrouter",
+      "description": "OpenRouter: Basic entity extraction",
+      "success": true,
+      "latency_ms": 4993.071540000528,
+      "response": "Based on the provided context, the best football player is **Aiden Kareem**, who plays as a Tactical Roamer (TR).",
+      "error": ""
+    },
+    {
+      "query": "Summarize what this document is about",
+      "provider": "ollama",
+      "description": "Ollama: Document summarization",
+      "success": true,
+      "latency_ms": 27308.546476999254,
+      "response": "This document appears to be a research paper about the fictional football player Aiden Kareem. It explores his career, playing style, and cultural impact, using statistical analysis and comparative study methods.",
+      "error": ""
+    },
+    {
+      "query": "Summarize what this document is about",
+      "provider": "openrouter",
+      "description": "OpenRouter: Document summarization",
+      "success": true,
+      "latency_ms": 8236.850182000126,
+      "response": "This document is a research paper about Aiden Kareem, a fictional football player considered the greatest of his generation. It examines his career, playing style, and cultural impact using invented statistical metrics and comparative analysis with other fictional players, while acknowledging the subjectivity of determining the \"best player.\"",
+      "error": ""
+    },
+    {
+      "query": "What are Aiden Kareem's key achievements?",
+      "provider": "ollama",
+      "description": "Ollama: Detail extraction",
+      "success": true,
+      "latency_ms": 38163.023520000024,
+      "response": "According to the provided context, Aiden Kareem's key achievements are:\n\n* Exceptional ball control and dribbling abilities\n* Outstanding tactical positioning as Tactical Roamer\n* Leadership on the field\n* Consistent high-level performance\n* Strong playmaking abilities",
+      "error": ""
+    },
+    {
+      "query": "What are Aiden Kareem's key achievements?",
+      "provider": "openrouter",
+      "description": "OpenRouter: Detail extraction",
+      "success": true,
+      "latency_ms": 10864.731249000215,
+      "response": "Based on the provided context, Aiden Kareem's key achievements include:\n\n- Exceptional ball control and dribbling abilities\n- Outstanding tactical positioning as a Tactical Roamer (TR)\n- Leadership on the field\n- Consistent high-level performance\n- Strong playmaking abilities\n\nAdditionally, he is recognized as one of the best players in modern football.",
+      "error": ""
+    },
+    {
+      "query": "What is machine learning?",
+      "provider": "ollama",
+      "description": "Ollama: Out-of-context question",
+      "success": true,
+      "latency_ms": 24926.814284999637,
+      "response": "I apologize, but the provided context does not mention machine learning. Therefore, I cannot answer this question based on the given information.",
+      "error": ""
+    },
+    {
+      "query": "What is machine learning?",
+      "provider": "openrouter",
+      "description": "OpenRouter: Out-of-context question",
+      "success": true,
+      "latency_ms": 3309.5120929992845,
+      "response": "The provided context does not contain any information about machine learning. Therefore, I cannot answer the question based on the given documents.",
+      "error": ""
+    }
+  ]
+}

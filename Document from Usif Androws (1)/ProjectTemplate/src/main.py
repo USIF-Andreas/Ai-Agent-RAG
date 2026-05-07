@@ -1,8 +1,9 @@
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
+import time
 
 from src.controllers import RAGController
 from src.helpers.config import get_settings
@@ -44,6 +45,18 @@ def create_app() -> FastAPI:
 
     # Mount static files - search for the static directory
     app.mount("/static", StaticFiles(directory=str(find_static_dir())), name="static")
+
+    # Request logging middleware
+    @app.middleware("http")
+    async def log_requests(request: Request, call_next):
+        start_time = time.perf_counter()
+        response = await call_next(request)
+        process_time = (time.perf_counter() - start_time) * 1000
+        
+        print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] "
+              f"{request.method} {request.url.path} - "
+              f"{response.status_code} ({process_time:.0f}ms)")
+        return response
 
     # API routes
     app.include_router(build_router())
