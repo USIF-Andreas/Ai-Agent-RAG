@@ -19,14 +19,14 @@ from langchain.prompts import PromptTemplate
 
 
 class RAGAgent:
-    def __init__(self, docs_dir="documents", model_name="phi3:mini", base_url=None, embeddings_model=None):
+    def __init__(self, docs_dir="documents", model_name="llama3", base_url=None, embeddings_model=None):
         """
         Initialize RAG Agent with local documents and Ollama LLM
         
         Args:
             docs_dir: Directory containing documents to load
-            model_name: Ollama model to use for generation (default: phi3:mini - faster)
-                       Run: ollama pull phi3:mini
+            model_name: Ollama model to use for generation (default: llama3 - efficient)
+                       Run: ollama pull llama3
             embeddings_model: Ollama model to use for embeddings (default: nomic-embed-text - fast)
                             Run: ollama pull nomic-embed-text
         """
@@ -106,7 +106,7 @@ class RAGAgent:
                 print("✅ Vector store cached")
             
             # Initialize LLM
-            # Initialize LLM - phi3:mini is much faster than mistral
+            # Initialize LLM - llama3 is efficient and capable for RAG tasks
             print(f"Loading LLM: {self.model_name}")
             llm = Ollama(
                 model=self.model_name,

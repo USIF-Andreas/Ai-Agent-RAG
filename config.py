@@ -4,7 +4,7 @@ Customize settings here
 """
 
 # LLM Settings
-LLM_MODEL = "phi3:mini"  # Model to use: phi3:mini (fast), mistral (slow but accurate), llama2, neural-chat
+LLM_MODEL = "llama3"  # Model to use: llama3 (efficient and capable), phi3:mini (fast), mistral (slow but accurate), llama2, neural-chat
 EMBEDDINGS_MODEL = "nomic-embed-text"  # Model for embeddings (fast, optimized for this task)
 OLLAMA_BASE_URL = "http://localhost:11434"
 

@@ -33,7 +33,7 @@ pip install -r requirements.txt
 
 Pull the default model:
 ```bash
-ollama pull phi3:mini
+ollama pull llama3
 ```
 
 Start Ollama:
@@ -67,7 +67,7 @@ documents/faiss_index_*
 
 ## Troubleshooting
 - Ollama must be running: `ollama serve`
-- Ensure the model is pulled: `ollama pull phi3:mini`
+- Ensure the model is pulled: `ollama pull llama3`
 - If you see FAISS dimension errors, remove the old cache and restart.
 
 ---

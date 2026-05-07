@@ -441,10 +441,8 @@
                     addMessage(data.error, false, true);
                 } else if (data.answer) {
                     addMessage(data.answer);
-                } else if (data.response) {
-                    addMessage(data.response);
                 } else {
-                    addMessage("Empty response");
+                    addMessage(data.response);
                 }
                 sendBtn.disabled = false;
             })

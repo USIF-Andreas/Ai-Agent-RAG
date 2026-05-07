@@ -1,0 +1,67 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: rag-cv-matcher-app
+    command: python src/main.py
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      APP_NAME: ${APP_NAME:-RAG CV Matcher}
+      APP_VERSION: ${APP_VERSION:-0.1.0}
+      DEBUG: ${DEBUG:-true}
+      HOST: 0.0.0.0
+      PORT: 8000
+      API_PREFIX: ${API_PREFIX:-/api}
+      CORS_ORIGINS: '["*"]'
+      DOCUMENTS_DIR: /app/documents
+      UPLOADS_DIR: /app/uploads
+      TEMP_DIR: /app/tmp
+      FAISS_INDEX_PATH: ${FAISS_INDEX_PATH:-/app/documents/faiss_index}
+      SQLITE_DB_PATH: ${SQLITE_DB_PATH:-/app/documents/metadata.db}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+      VECTOR_STORE_PROVIDER: ${VECTOR_STORE_PROVIDER:-faiss}
+      METADATA_STORE_PROVIDER: ${METADATA_STORE_PROVIDER:-sqlite}
+      LLM_MODEL: ${LLM_MODEL:-llama3:8b}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
+      EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-4096}
+      CHUNK_SIZE: ${CHUNK_SIZE:-500}
+      CHUNK_OVERLAP: ${CHUNK_OVERLAP:-100}
+      TOP_K: ${TOP_K:-3}
+      MAX_CONTEXT_CHUNKS: ${MAX_CONTEXT_CHUNKS:-5}
+      DEFAULT_LANGUAGE: ${DEFAULT_LANGUAGE:-auto}
+      SUPPORTED_EXTENSIONS: '[[".txt", ".md", ".html", ".htm", ".pdf"]]'
+      ENABLE_ARABIC_NORMALIZATION: ${ENABLE_ARABIC_NORMALIZATION:-true}
+      ENABLE_FACTORY_PATTERN: ${ENABLE_FACTORY_PATTERN:-true}
+    volumes:
+      - ../../../documents:/app/documents
+      - app_uploads:/app/uploads
+      - app_tmp:/app/tmp
+    depends_on:
+      ollama:
+        condition: service_started
+    networks:
+      - rag-net
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: rag-cv-matcher-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - rag-net
+
+volumes:
+  ollama_data:
+  app_uploads:
+  app_tmp:
+
+networks:
+  rag-net:
+    driver: bridge

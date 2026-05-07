@@ -1,0 +1,1 @@
+"""MongoDB metadata provider package."""

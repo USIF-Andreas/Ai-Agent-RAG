@@ -1,0 +1,1 @@
+"""ProjectTemplate FastAPI application package."""
